@@ -1,7 +1,7 @@
 /*eslint-disable*/
-import { GraphQLError } from 'graphql';
+import { Router, Request, Response, NextFunction } from 'express';
 import Status from 'http-status';
-import { Request } from 'express';
+const router = Router();
 
 const time =
   process.env.NODE_ENV === 'development'
@@ -9,50 +9,43 @@ const time =
     : '2s';
 
 const TOKEN_EXPIRED_ERROR = 'TokenExpiredError';
-// const FAIL_AUTH = 'Failed to authenticate token is expired.';
+const FAIL_AUTH = 'Failed to authenticate token is expired.';
 
-export default ({ jwt }: { jwt: any }) => {
-  return {
-    authorization: ({ req }: { req: Request }) => {
-      const {
-        headers: { authorization },
-        body: { query, operationName },
-      } = req;
+export default ({ response: { Fail }, jwt }: any) =>
+  router.use((req: Request, res: Response, next: NextFunction) => {
+    const extractToken = req?.headers?.authorization?.startsWith('Bearer ');
 
-      console.log('authorization query query query query query', operationName);
+    if (extractToken) {
+      const token = req?.headers?.authorization?.split(' ')?.[1];
 
-      //@TODO find a another way to do this
-      if (query?.includes('IntrospectionQuery')) return null;
-
-      const extractToken = authorization?.startsWith('Bearer ');
-
-      console.log('extractToken extractToken', extractToken);
-
-      if (extractToken) {
-        const token = authorization?.split(' ')?.[1];
-        try {
-          jwt.verify({ maxAge: time })(token);
-        } catch (e: any) {
-          if (e.name === TOKEN_EXPIRED_ERROR)
-            throw new GraphQLError(<string>Status[Status.UNAUTHORIZED], {
-              extensions: {
-                code: Status.UNAUTHORIZED,
-                http: { status: 401 },
-              },
-            });
-
-          throw new GraphQLError(<string>Status[Status.BAD_REQUEST], {
-            extensions: {
-              code: Status.BAD_REQUEST,
-              http: { status: 400 },
-            },
-          });
+      try {
+        jwt.verify({ maxAge: time })(token);
+      } catch (e: any) {
+        if (e.name === TOKEN_EXPIRED_ERROR) {
+          return res.status(Status.UNAUTHORIZED).json(
+            Fail({
+              success: false,
+              expireTime: true,
+              message: FAIL_AUTH,
+            }),
+          );
         }
 
-        return null;
+        return res.status(Status.BAD_REQUEST).json(
+          Fail({
+            success: false,
+            message: Status[Status.BAD_REQUEST],
+          }),
+        );
       }
 
-      throw new Error('No token provided.');
-    },
-  };
-};
+      return next();
+    }
+
+    return res.status(Status.UNAUTHORIZED).json(
+      Fail({
+        success: false,
+        message: 'No token provided.',
+      }),
+    );
+  });
