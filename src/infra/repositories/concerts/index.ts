@@ -2,29 +2,20 @@
 import { UniqueConstraintError, Op } from 'sequelize';
 import IUser from 'core/IUser';
 import toEntity from './transform';
-import { convertNodeToCursor, convertCursorToNodeId } from './helpers';
 
 export default ({ model, model2, jwt }: any) => {
   const getAll = async ({
     filters,
-    afterCursor,
-    first,
+    pageSize = 5,
+    page = 1,
     attributes,
   }: {
     filters: string;
-    afterCursor: string;
-    first: number;
+    pageSize: number;
+    page: number;
     attributes: string[] | undefined;
-  }): Promise<{
-    edges: { cursor: string; node: { id: number } }[];
-    pageInfo: {
-      hasPrevPage: boolean;
-      hasNextPage: boolean;
-      endCursor: string | null;
-      startCursor: string | null;
-    };
-    totalCount: number;
-  }> => {
+  }): Promise<unknown> => {
+    /*
     console.log('filters filters filters', filters);
 
     const nodeId = convertCursorToNodeId(afterCursor || 'MTExMjkxMjk=');
@@ -139,9 +130,84 @@ export default ({ model, model2, jwt }: any) => {
           hasNextPage,
           hasPrevPage,
         },
+      };*/
+
+    console.log('getAll');
+
+    try {
+      const query: {
+        where: {
+          [Op.or]?: [
+            {
+              display_name: {
+                [Op.like]: string;
+              };
+            },
+          ];
+          datetime: {
+            [Op.and]: [{ [Op.gte]: Date }];
+          };
+          /*concert_id?: {
+            [Op.and]: [{ [Op.gte]: string }];
+          };*/
+        };
+        order: string[][];
+      } = {
+        where: {
+          datetime: {
+            [Op.and]: [{ [Op.gte]: new Date() }],
+          },
+          /*concert_id: {
+            [Op.and]: [{ [Op.gte]: nodeId }],
+          },*/
+        },
+        order: [['datetime', 'ASC']],
+      };
+      if (filters) {
+        query.order = [['datetime', 'ASC']];
+        query.where = {
+          datetime: {
+            [Op.and]: [{ [Op.gte]: new Date() }],
+          },
+          /*concert_id: {
+            [Op.and]: [{ [Op.gte]: nodeId }],
+          },*/
+          [Op.or]: [
+            {
+              display_name: {
+                [Op.like]: `%${filters}%`,
+              },
+            },
+          ],
+        };
+      }
+
+      console.log('query', query);
+
+      const data = await model.findAndCountAll({
+        ...query,
+        attributes,
+        include: model2,
+        raw: true,
+        nest: true,
+      });
+
+      const pages = Math.ceil(data.count / pageSize);
+      const prev = page > 1 ? page - 1 : null;
+      const next = page < pages ? page + 1 : null;
+
+      return {
+        pageInfo: {
+          count: data.count,
+          next,
+          pages,
+          prev,
+        },
+        results: (data.rows || [])?.map((data: { dataValues: unknown }) =>
+          toEntity({ ...(data.dataValues as any) }),
+        ),
       };
     } catch (error) {
-      console.log('error error error error', error);
       throw new Error(error as string | undefined);
     }
   };
