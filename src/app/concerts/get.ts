@@ -19,45 +19,29 @@ export default ({
   logger: any;
 }) => {
   const all = async ({
-    afterCursor,
-    filters,
-    first,
-  }: {
-    afterCursor: string | null;
-    filters: string;
-    first: number;
-  }): Promise<any> => {
-    console.log('arg arg arg arg', {
-      afterCursor,
-      filters,
-      first,
-    });
-
+    ...arg
+  }: ArrayLike<unknown> | Record<string, unknown>) => {
     try {
-      if (!afterCursor && !filters) {
-        const cachingConcertList = await redis.get(KEY);
-        logger.info(cachingConcertList);
-        if (
-          cachingConcertList &&
-          Object.values(cachingConcertList).filter(Boolean).length
-        ) {
-          return cachingConcertList;
-        }
+      if (arg && Object.values(arg).filter(Boolean).length) {
+        return concertsRepository.getAll({
+          attributes: {},
+          ...arg,
+        });
       }
 
-      const concertList = await concertsRepository.getAll({
-        afterCursor,
+      const cachingConcertList = await redis.get(KEY);
+
+      if (cachingConcertList) return cachingConcertList;
+
+      const concertList = concertsRepository.getAll({
         attributes: {},
-        filters,
-        first,
+        ...arg,
       });
 
-      !afterCursor &&
-        !filters &&
-        redis.set(KEY, JSON.stringify(concertList), TTL);
+      redis.set(KEY, JSON.stringify(concertList), TTL);
 
       return concertList;
-    } catch (error) {
+    } catch (error: unknown) {
       throw new Error(error as string | undefined);
     }
   };
