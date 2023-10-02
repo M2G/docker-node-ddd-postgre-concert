@@ -1,12 +1,24 @@
-import concerts from 'interfaces/schema-definition/concerts';
+import container from '../../../../container';
+import router from './router';
 import instance from './instance';
 
 export default () => {
-  const { getOneUseCase, getUseCase } = instance();
+  const { cradle } = container;
+
+  const {
+    logger,
+    response: { Success, Fail },
+    auth,
+  } = cradle;
+  const app = instance();
+
   return {
-    concerts: concerts({
-      getOneUseCase,
-      getUseCase,
+    app,
+    router: router({
+      auth,
+      logger,
+      response: { Fail, Success },
+      ...app,
     }),
   };
 };
