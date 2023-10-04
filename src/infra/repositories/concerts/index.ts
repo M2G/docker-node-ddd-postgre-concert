@@ -207,8 +207,8 @@ export default ({ model, model2, jwt }: any) => {
           pages,
           prev,
         },
-        results: (data.rows || [])?.map((data: { dataValues: unknown }) =>
-          toEntity({ ...(data.dataValues as any) }),
+        results: (data.rows || [])?.map((d: unknown) =>
+          toEntity({ ...(d as any) }),
         ),
       };
     } catch (error) {
