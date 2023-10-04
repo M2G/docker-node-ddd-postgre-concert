@@ -190,7 +190,11 @@ export default ({ model, model2, jwt }: any) => {
         include: model2,
         raw: true,
         nest: true,
+        limit: pageSize,
+        offset: pageSize * (page - 1),
       });
+
+      console.log('data data data data', data);
 
       const pages = Math.ceil(data.count / pageSize);
       const prev = page > 1 ? page - 1 : null;

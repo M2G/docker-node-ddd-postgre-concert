@@ -30,7 +30,7 @@ export default ({ config, logger, database, verify }: any) => {
     .use(bodyParser.json());
 
   router.use(ROUTES.INDEX, index());
-  router.use(verify);
+  // router.use(verify);
   router.use(ROUTES.CONCERTS, concerts().router);
   // users?search=EMAIL/FIST_NAME/LAST_NAME
   router.use(() => ({
