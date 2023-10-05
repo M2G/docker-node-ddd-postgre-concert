@@ -1,6 +1,6 @@
 import express from 'express';
 
-export default ({ config, router, logger, auth }: any) => {
+export default ({ config, router, logger, auth }) => {
   const app = express();
 
   app.disable('x-powered-by');

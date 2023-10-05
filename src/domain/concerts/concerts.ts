@@ -2,7 +2,7 @@ import t from 'tcomb';
 import Artists from 'domain/artists';
 
 const Concert = t.struct({
-  artists: t.maybe(t.list(Artists)),
+  artist: t.maybe(Artists),
   city: t.maybe(t.String),
   concert_id: t.maybe(t.Number),
   datetime: t.maybe(t.String),

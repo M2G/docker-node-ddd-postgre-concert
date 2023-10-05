@@ -1,9 +1,9 @@
 /*eslint-disable*/
 import { UniqueConstraintError, Op } from 'sequelize';
-import IUser from 'core/IUser';
+import IConcert from 'core/concerts';
 import toEntity from './transform';
 
-export default ({ model, model2, jwt }: any) => {
+export default ({ model, model2, jwt }) => {
   const getAll = async ({
     filters,
     pageSize = 5,
@@ -132,8 +132,6 @@ export default ({ model, model2, jwt }: any) => {
         },
       };*/
 
-    console.log('getAll');
-
     try {
       const query: {
         where: {
@@ -207,9 +205,9 @@ export default ({ model, model2, jwt }: any) => {
           pages,
           prev,
         },
-        results: (data.rows || [])?.map((d: unknown) =>
-          toEntity({ ...(d as any) }),
-        ),
+        results: data?.rows
+          ? data.rows.map((d: IConcert) => toEntity({ ...d }))
+          : [],
       };
     } catch (error) {
       throw new Error(error as string | undefined);
@@ -218,7 +216,7 @@ export default ({ model, model2, jwt }: any) => {
 
   const findOne = async ({ id }: { id: number }): Promise<unknown | null> => {
     try {
-      const data = await model.findByPk(id, { raw: true });
+      const data: IConcert = await model.findByPk(id, { raw: true });
       if (!data) return null;
       return toEntity({ ...data });
     } catch (error) {
