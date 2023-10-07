@@ -4,7 +4,7 @@ export default ({ config, router, logger, auth }) => {
   const app = express();
 
   app.disable('x-powered-by');
-  app.use(auth.initialize());
+  // app.use(auth.initialize());
   app.use(router);
 
   return {
