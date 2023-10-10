@@ -182,6 +182,8 @@ export default ({ model, model2, jwt }) => {
 
       console.log('query', query);
 
+      const currPage = Number(page) || 1;
+
       const data = await model.findAndCountAll({
         ...query,
         attributes,
@@ -189,20 +191,23 @@ export default ({ model, model2, jwt }) => {
         raw: true,
         nest: true,
         limit: pageSize,
-        offset: pageSize * (page - 1),
+        offset: pageSize * (currPage - 1),
       });
 
       console.log('data data data data', data);
+      const pages = Math.ceil(data.rows.length / pageSize);
+      const prev = currPage > 1 ? currPage - 1 : null;
+      const next = pages <= currPage ? currPage + 1 : null;
 
-      const pages = Math.ceil(data.count / pageSize);
-      const prev = page > 1 ? page - 1 : null;
-      const next = page < pages ? page + 1 : null;
-
+      console.log('pages', pages);
+      console.log('currPage', currPage);
+      console.log('data.rows.length', data.rows.length);
+      console.log('next', next);
       return {
         pageInfo: {
           count: data.count,
           next,
-          pages,
+          page: currPage,
           prev,
         },
         results: data?.rows
