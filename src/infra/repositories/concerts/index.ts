@@ -197,7 +197,7 @@ export default ({ model, model2, jwt }) => {
       console.log('data data data data', data);
       const pages = Math.ceil(data.rows.length / pageSize);
       const prev = currPage > 1 ? currPage - 1 : null;
-      const next = pages <= currPage ? currPage + 1 : null;
+      const next = pages && pages <= currPage ? currPage + 1 : null;
 
       console.log('pages', pages);
       console.log('currPage', currPage);
