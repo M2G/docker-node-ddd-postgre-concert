@@ -15,6 +15,8 @@ export default ({ model, model2, jwt }) => {
     page: number;
     attributes: string[] | undefined;
   }): Promise<unknown> => {
+    if (page < 0) throw new Error('`page` is not a number >= 0');
+    if (pageSize < 0) throw new Error('`pageSize` is not a number >= 0');
     /*
     console.log('filters filters filters', filters);
 
@@ -195,14 +197,17 @@ export default ({ model, model2, jwt }) => {
       });
 
       console.log('data data data data', data);
-      const pages = Math.ceil(data.rows.length / pageSize);
-      const prev = currPage > 1 ? currPage - 1 : null;
-      const next = pages && pages <= currPage ? currPage + 1 : null;
 
-      console.log('pages', pages);
+      const startIndex = (page - 1) * pageSize;
+      const endIndex = page * pageSize;
+
+      const prev = startIndex > 0 ? currPage - 1 : null;
+      const next = endIndex < data.count ? currPage + 1 : null;
+
       console.log('currPage', currPage);
-      console.log('data.rows.length', data.rows.length);
+      console.log('prev', prev);
       console.log('next', next);
+      console.log('data.rows.length', data.rows.length);
       return {
         pageInfo: {
           count: data.count,
