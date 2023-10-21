@@ -17,6 +17,7 @@ export default ({ model, model2, jwt }) => {
   }): Promise<unknown> => {
     if (page < 0) throw new Error('`page` is not a number >= 0');
     if (pageSize < 0) throw new Error('`pageSize` is not a number >= 0');
+
     /*
     console.log('filters filters filters', filters);
 
@@ -133,6 +134,8 @@ export default ({ model, model2, jwt }) => {
           hasPrevPage,
         },
       };*/
+
+    console.log('filters filters filters', filters);
 
     try {
       const query: {

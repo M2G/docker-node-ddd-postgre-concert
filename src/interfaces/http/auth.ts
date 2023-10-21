@@ -37,31 +37,36 @@ export default ({
   );
 
   passport.use(bearerStrategy);
-  passport.serializeUser((user, done) => done(null, user));
-  passport.deserializeUser((user: any, done) => done(null, user));
+  passport.serializeUser((user, done) => {
+    done(null, user);
+  });
+  passport.deserializeUser((user: any, done) => {
+    done(null, user);
+  });
 
   return {
-    initialize: () => passport.initialize(),
-    authenticate: (req: Request, res: Response, next: NextFunction) => {
-      return passport.authenticate(
+    authenticate: (req: Request, res: Response, next: NextFunction) =>
+      passport.authenticate(
         'bearer',
         { session: false },
         (err: string, _: any) => {
           console.log('passport.authenticate', err);
 
-          if (err === Status[Status.NOT_FOUND])
+          if (err === Status[Status.NOT_FOUND]) {
             return res
               .status(Status.NOT_FOUND)
               .json(Fail({ message: Status[Status.NOT_FOUND] }));
+          }
 
-          if (err)
+          if (err) {
             return res
               .status(Status.UNAUTHORIZED)
               .json(Fail(Status[Status.UNAUTHORIZED]));
+          }
 
-          return next();
+          next();
         },
-      )(req, res, next);
-    },
+      )(req, res, next),
+    initialize: () => passport.initialize(),
   };
 };
