@@ -3,7 +3,13 @@ import { UniqueConstraintError, Op } from 'sequelize';
 import IConcert from 'core/concerts';
 import toEntity from './transform';
 
-export default ({ model, model2, jwt }) => {
+interface IConcertRepository {
+  model: any;
+  model2: any;
+  jwt: any;
+}
+
+export default ({ model, model2, jwt }: IConcertRepository) => {
   const getAll = async ({
     filters,
     pageSize = 5,
@@ -135,7 +141,11 @@ export default ({ model, model2, jwt }) => {
         },
       };*/
 
-    console.log('filters filters filters', filters);
+    console.log('-------------', {
+      filters,
+      pageSize,
+      page,
+    });
 
     try {
       const query: {
@@ -150,9 +160,6 @@ export default ({ model, model2, jwt }) => {
           datetime: {
             [Op.and]: [{ [Op.gte]: Date }];
           };
-          /*concert_id?: {
-            [Op.and]: [{ [Op.gte]: string }];
-          };*/
         };
         order: string[][];
       } = {
@@ -160,9 +167,6 @@ export default ({ model, model2, jwt }) => {
           datetime: {
             [Op.and]: [{ [Op.gte]: new Date() }],
           },
-          /*concert_id: {
-            [Op.and]: [{ [Op.gte]: nodeId }],
-          },*/
         },
         order: [['datetime', 'ASC']],
       };
@@ -172,9 +176,6 @@ export default ({ model, model2, jwt }) => {
           datetime: {
             [Op.and]: [{ [Op.gte]: new Date() }],
           },
-          /*concert_id: {
-            [Op.and]: [{ [Op.gte]: nodeId }],
-          },*/
           [Op.or]: [
             {
               display_name: {

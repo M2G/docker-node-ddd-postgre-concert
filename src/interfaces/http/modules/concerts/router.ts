@@ -28,7 +28,7 @@ export default ({
     }
   });
 
-  router.get('/:id', async (req: Request, res: Response) => {
+  router.get('/:id', async (req: Request, res: Response): Promise<Response> => {
     const { params } = req;
     const { id } = params;
 
