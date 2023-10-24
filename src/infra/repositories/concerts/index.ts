@@ -3,13 +3,31 @@ import { UniqueConstraintError, Op } from 'sequelize';
 import IConcert from 'core/concerts';
 import toEntity from './transform';
 
+interface IConcertRepositoryReturnType {
+  getAll: ({
+    filters,
+    pageSize,
+    page,
+    attributes,
+  }: {
+    filters: string;
+    pageSize: number;
+    page: number;
+    attributes: string[] | undefined;
+  }) => Promise<unknown>;
+  findOne: ({ id }: { id: number }) => Promise<unknown | null>;
+  destroy: (...args: any[]) => Promise<unknown>;
+}
 interface IConcertRepository {
   model: any;
   model2: any;
   jwt: any;
 }
-
-export default ({ model, model2, jwt }: IConcertRepository) => {
+export default ({
+  model,
+  model2,
+  jwt,
+}: IConcertRepository): IConcertRepositoryReturnType => {
   const getAll = async ({
     filters,
     pageSize = 5,
