@@ -1,5 +1,5 @@
 /*eslint-disable*/
-import { UniqueConstraintError, Op } from 'sequelize';
+import { Op } from 'sequelize';
 import IConcert from 'core/concerts';
 import toEntity from './transform';
 
@@ -171,7 +171,7 @@ export default ({
           [Op.or]?: [
             {
               display_name: {
-                [Op.like]: string;
+                [Op.iLike]: string;
               };
             },
           ];
@@ -197,7 +197,7 @@ export default ({
           [Op.or]: [
             {
               display_name: {
-                [Op.like]: `%${filters}%`,
+                [Op.iLike]: `%${filters}%`,
               },
             },
           ],
